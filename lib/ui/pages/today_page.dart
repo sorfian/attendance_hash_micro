@@ -23,7 +23,7 @@ class _TodayPageState extends State<TodayPage> {
     _getAttendanceDistance();
   }
 
-  Future<bool> _getAttendanceDistance() async {
+  Future<void> _getAttendanceDistance() async {
     QuerySnapshot<Map<String, dynamic>> snap =
         await FirebaseFirestore.instance.collection("AttendanceLocation").get();
 
@@ -42,9 +42,9 @@ class _TodayPageState extends State<TodayPage> {
         setState(() {
           inRangeArea = true;
         });
+        break;
       }
     }
-    return inRangeArea;
   }
 
   void _getLocation() async {
@@ -255,10 +255,14 @@ class _TodayPageState extends State<TodayPage> {
                                 Icons.close,
                                 color: primary,
                               )
-                            : null,
+                            : const Icon(
+                                Icons.done,
+                                color: primary,
+                              ),
                         onSubmit: () async {
                           if (User.lat != 0) {
                             _getLocation();
+                            _getAttendanceDistance();
 
                             if (inRangeArea) {
                               QuerySnapshot snap = await FirebaseFirestore
@@ -328,8 +332,9 @@ class _TodayPageState extends State<TodayPage> {
                           } else {
                             Timer(const Duration(seconds: 3), () async {
                               _getLocation();
+                              _getAttendanceDistance();
 
-                              if (await _getAttendanceDistance()) {
+                              if (inRangeArea) {
                                 QuerySnapshot snap = await FirebaseFirestore
                                     .instance
                                     .collection("Employee")
